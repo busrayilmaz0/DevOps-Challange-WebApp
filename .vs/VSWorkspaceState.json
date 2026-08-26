@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\concourse",
+    "\\ZiraatApi",
+    "\\ZiraatApi\\ZiraatAPI",
+    "\\ZiraatApi\\ZiraatAPI\\ZiraatAPI",
+    "\\ZiraatApi\\ZiraatAPI\\ZiraatAPI\\Controllers",
+    "\\ZiraatApi\\ZiraatAPI\\ZiraatAPI\\Models"
+  ],
+  "SelectedNode": "\\concourse\\webapp-pipeline.yml",
+  "PreviewInSolutionExplorer": false
+}

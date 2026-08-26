@@ -1,0 +1,23 @@
+resources:
+  - name: webapi-repo
+    type: git
+    source:
+      uri: https://github.com/busrayilmaz0/DevOps-Challange-WebApi.git
+      branch: main
+
+  - name: dockerhub-imajimiz
+    type: docker-image
+    source:
+      repository: busra02/ziraat-webapi
+      username: "busra02"
+      password: "busra04.y"
+
+jobs:
+  - name: build-and-publish-image
+    plan:
+      - get: webapi-repo
+        trigger: true
+        
+      - put: dockerhub-imajimiz
+        params:
+          build: webapi-repo/ZiraatAPI

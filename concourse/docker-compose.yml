@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  concourse-db:
+    image: postgres:15
+    container_name: concourse-db
+    environment:
+      POSTGRES_DB: concourse
+      POSTGRES_USER: concourse_user
+      POSTGRES_PASSWORD: concourse_pass
+    volumes:
+      - concourse-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U concourse_user -d concourse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  concourse-web:
+    image: concourse/concourse
+    container_name: concourse-web
+    command: web
+    depends_on:
+      concourse-db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keys:/concourse/keys
+    environment:
+      CONCOURSE_POSTGRES_HOST: concourse-db
+      CONCOURSE_POSTGRES_USER: concourse_user
+      CONCOURSE_POSTGRES_PASSWORD: concourse_pass
+      CONCOURSE_POSTGRES_DATABASE: concourse
+      CONCOURSE_EXTERNAL_URL: http://localhost:8080
+      CONCOURSE_ADD_LOCAL_USER: admin:admin
+      CONCOURSE_MAIN_TEAM_LOCAL_USER: admin
+      CONCOURSE_WORKER_BAGGAGECLAIM_DRIVER: overlay
+      CONCOURSE_TSA_HOST_KEY: /concourse/keys/tsa_host_key
+      CONCOURSE_SESSION_SIGNING_KEY: /concourse/keys/session_signing_key
+      CONCOURSE_TSA_AUTHORIZED_KEYS: /concourse/keys/authorized_worker_keys
+    restart: unless-stopped
+
+  concourse-worker:
+    image: concourse/concourse
+    container_name: concourse-worker
+    command: worker
+    privileged: true
+    depends_on:
+      - concourse-web
+    volumes:
+      - ./keys:/concourse/keys
+    environment:
+      CONCOURSE_TSA_HOST: concourse-web:2222
+      CONCOURSE_TSA_PUBLIC_KEY: /concourse/keys/tsa_host_key.pub
+      CONCOURSE_TSA_WORKER_PRIVATE_KEY: /concourse/keys/worker_key
+      CONCOURSE_BAGGAGECLAIM_DRIVER: overlay
+      CONCOURSE_CONTAINERD_DNS_SERVER: "8.8.8.8"
+    restart: unless-stopped
+    stop_signal: SIGUSR2
+
+volumes:
+  concourse-db-data:

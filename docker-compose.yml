@@ -1,0 +1,18 @@
+services:
+  webapi:
+    image: busra02/ziraat-api:latest
+    container_name: ziraat_webapi
+    ports:
+      - "11130:11130"
+    environment:
+      - ASPNETCORE_URLS=http://+:11130
+
+  webapp:
+    image: busra02/ziraat-webapp:latest
+    container_name: ziraat_webapp
+    ports:
+      - "52369:52369"
+    environment:
+      - ASPNETCORE_URLS=http://+:52369
+    depends_on:
+      - webapi
