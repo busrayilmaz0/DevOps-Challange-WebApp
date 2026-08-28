@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 export default function App() {
   // Backend API Adresi
-  const API_BASE = 'https://ziraat-webapp.onrender.com';
+  const API_BASE = 'https://ziraat-devops-webapp.onrender.com';
 
   const [view, setView] = useState('login');
   
@@ -18,7 +18,7 @@ export default function App() {
 
   // Aktif kullanıcı ve bakiye state'leri
   const [currentUser, setCurrentUser] = useState(null);
-  const [balance, setBalance] = useState(14250.50);
+  const [balance, setBalance] = useState(0);
   const [showBalance, setShowBalance] = useState(true);
 
   // Modal Kontrolleri
@@ -63,19 +63,21 @@ export default function App() {
     { title: 'Online Alışveriş', desc: 'E-Ticaret Harcaması', amount: '-850,00 TL', type: 'expense', code: 'E', date: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000) }
   ]);
 
-  // 1. KAYIT OLMA (Backend + LocalStorage Yedekli)
   const handleRegister = async (e) => {
-    e.preventDefault();
-    if (regPassword.length !== 6) {
-      alert('Lütfen 6 haneli bir parola giriniz!');
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
+
+    // Parola 6 haneden azsa hata ver (maxLength zaten 6'dan fazla girmeyi engelliyor)
+    if (regPassword.length < 6) {
+      alert('Parola 6 haneli olmalıdır!');
       return;
     }
 
     const newUser = {
       fullName: regName,
       tc: regTc,
-      password: regPassword,
-      iban: 'TR54 0001 0000 1234 5678 90'
+      password: regPassword
     };
 
     try {
@@ -85,30 +87,38 @@ export default function App() {
         body: JSON.stringify(newUser)
       });
 
+      const data = await response.json();
+
       if (response.ok) {
         alert('Hesap başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.');
         setView('login');
         setRegName(''); setRegTc(''); setRegPassword('');
         return;
+      } else {
+        alert('Kayıt başarısız: ' + (data.message || 'Bilinmeyen hata'));
       }
     } catch (err) {
       console.warn('Backend bağlantısı kurulamadı, yerel hafıza kullanılıyor.', err);
-    }
+      
+      const existingUsers = JSON.parse(localStorage.getItem('ziraat_users')) || [];
+      if (existingUsers.find(u => u.tc === regTc)) {
+        alert('Bu T.C. Kimlik Numarası ile zaten bir hesap var!');
+        return;
+      }
 
-    // Yedek: LocalStorage İşlemi
-    const existingUsers = JSON.parse(localStorage.getItem('ziraat_users')) || [];
-    if (existingUsers.find(u => u.tc === regTc)) {
-      alert('Bu T.C. Kimlik Numarası ile zaten bir hesap var!');
-      return;
-    }
+      const backupUser = {
+        ...newUser,
+        iban: `TR54 0001 0000 ${Math.floor(10000000 + Math.random() * 90000000)}`,
+        balance: Math.floor(Math.random() * (50000 - 1000 + 1)) + 1000
+      };
 
-    existingUsers.push(newUser);
-    localStorage.setItem('ziraat_users', JSON.stringify(existingUsers));
-    alert('Hesap yerel olarak başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.');
-    setView('login');
-    setRegName(''); setRegTc(''); setRegPassword('');
+      existingUsers.push(backupUser);
+      localStorage.setItem('ziraat_users', JSON.stringify(existingUsers));
+      alert('Hesap yerel olarak başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.');
+      setView('login');
+      setRegName(''); setRegTc(''); setRegPassword('');
+    }
   };
-
   // 2. GİRİŞ YAPMA (Backend + LocalStorage Yedekli)
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -123,6 +133,10 @@ export default function App() {
       if (response.ok) {
         const data = await response.json();
         setCurrentUser(data);
+        
+        // Backend'den gelen gerçek bakiyeyi state'e aktarıyoruz:
+        setBalance(data.balance !== undefined ? data.balance : 0);
+
         successLogin();
         return;
       }
@@ -136,6 +150,7 @@ export default function App() {
 
     if (foundUser) {
       setCurrentUser(foundUser);
+      setBalance(foundUser.balance || 0);
       successLogin();
     } else {
       alert('T.C. Kimlik Numarası veya Parola hatalı!');
@@ -279,7 +294,7 @@ export default function App() {
     return true;
   });
 
-  // --- KAYIT EKRANI ---
+ // --- KAYIT EKRANI ---
   if (view === 'register') {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans px-4">
@@ -288,23 +303,52 @@ export default function App() {
             <h1 className="text-3xl font-black text-slate-800 tracking-tight">Ziraat Dijital</h1>
             <p className="text-sm text-slate-500 mt-1">Yeni Hesap Oluşturma</p>
           </div>
-          <form onSubmit={handleRegister} className="space-y-5">
+          
+          <div className="space-y-5">
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">İsim Soyisim</label>
-              <input type="text" value={regName} onChange={(e) => setRegName(e.target.value)} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="Büşra Yılmaz" />
+              <input type="text" value={regName} onChange={(e) => setRegName(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="Büşra Yılmaz" />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">T.C. Kimlik No</label>
-              <input type="text" maxLength="11" value={regTc} onChange={(e) => setRegTc(e.target.value)} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="11 haneli T.C." />
+              <input type="text" value={regTc} onChange={(e) => setRegTc(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="T.C. Kimlik No" />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">6 Haneli Parola</label>
-              <input type="password" maxLength="6" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm tracking-widest" placeholder="••••••" />
+              <input 
+                type="password" 
+                maxLength="6" 
+                value={regPassword} 
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '');
+                  if (val.length <= 6) {
+                    setRegPassword(val);
+                  }
+                }} 
+                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm tracking-widest" 
+                placeholder="••••••" 
+              />
             </div>
-            <button type="submit" className="w-full py-4 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl shadow-lg transition-all text-base mt-2">Hesap Oluştur</button>
-          </form>
+            
+            <button 
+              type="button" 
+              onClick={() => {
+                // 6 haneden az yazıldıysa butona basıldığında uyar ve devam ettirme
+                if (regPassword.length < 6) {
+                  alert('Parola mutlaka 6 haneli olmalıdır!');
+                  return;
+                }
+                console.log("Hesap oluştur butonuna basıldı!", { regName, regTc, regPassword });
+                handleRegister();
+              }} 
+              className="w-full py-4 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl shadow-lg transition-all text-base mt-2 cursor-pointer"
+            >
+              Hesap Oluştur
+            </button>
+          </div>
+
           <div className="mt-6 text-center">
-            <button onClick={() => setView('login')} className="text-xs text-slate-500 hover:text-[#d32f2f] font-bold">Zaten hesabın var mı? <span className="underline">Giriş Yap</span></button>
+            <button onClick={() => setView('login')} className="text-xs text-slate-500 hover:text-[#d32f2f] font-bold cursor-pointer">Zaten hesabın var mı? <span className="underline">Giriş Yap</span></button>
           </div>
         </div>
       </div>
@@ -569,41 +613,17 @@ export default function App() {
                         </div>
                         <p className="text-sm font-mono tracking-widest text-slate-300 mt-3">4582 3400 •••• 9812</p>
                       </div>
-
-                      <div onClick={() => setCardDetail('kredi')} className="p-5 bg-gradient-to-br from-amber-700 to-amber-900 text-white rounded-2xl shadow-md cursor-pointer hover:scale-[1.01] transition-all group border border-amber-600/50">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg">💳</div>
-                            <div>
-                              <h4 className="font-extrabold text-white text-sm group-hover:text-amber-300 transition-colors">Kredi Kartı (Maximum) →</h4>
-                              <p className="text-xs text-amber-200/80">Kalan Limit: 25.000 TL</p>
-                            </div>
-                          </div>
-                          <span className="px-2.5 py-1 bg-amber-500/20 text-amber-200 text-[10px] font-bold rounded-full border border-amber-500/30">Aktif</span>
-                        </div>
-                        <p className="text-sm font-mono tracking-widest text-amber-100 mt-3">5400 1200 •••• 4421</p>
-                      </div>
                     </div>
-
-                    <button onClick={() => setActiveModal(null)} className="w-full py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-all">Kapat</button>
+                    <button onClick={() => setActiveModal(null)} className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-all">Kapat</button>
                   </div>
                 ) : (
                   <div>
                     <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h3 className="text-xl font-black text-slate-800">{cardDetail === 'banka' ? 'Banka Kartı Detayları' : 'Kredi Kartı Detayları'}</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">Kart ayarları ve şifre işlemleri</p>
-                      </div>
-                      <button onClick={() => setCardDetail(null)} className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 transition-all">←</button>
+                      <h3 className="text-xl font-black text-slate-800">Kart Detayları</h3>
+                      <button onClick={() => setCardDetail(null)} className="text-sm text-[#d32f2f] font-bold underline">Geri Dön</button>
                     </div>
-
-                    <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3 mb-6">
-                      <p className="text-sm font-bold text-slate-700">Durum: <span className="text-emerald-600">Kullanıma Açık</span></p>
-                      <p className="text-sm font-bold text-slate-700">Temassız İşlem: <span className="text-slate-600">Açık</span></p>
-                      <p className="text-sm font-bold text-slate-700">İnternet Alışverişi: <span className="text-slate-600">Açık</span></p>
-                    </div>
-
-                    <button onClick={() => { alert('Kart ayarları güncellendi!'); setActiveModal(null); setCardDetail(null); }} className="w-full py-3.5 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl transition-all shadow-lg shadow-red-500/30">Ayarları Kaydet</button>
+                    <p className="text-sm text-slate-600 mb-6">Banka kartınıza ait detaylar burada yer almaktadır.</p>
+                    <button onClick={() => setActiveModal(null)} className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-all">Kapat</button>
                   </div>
                 )}
               </div>
@@ -611,146 +631,73 @@ export default function App() {
 
             {activeModal === 'yatirim' && (
               <div>
-                {investmentDetail === null ? (
-                  <div>
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h3 className="text-xl font-black text-slate-800">Yatırım İşlemleri</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">Altın ve döviz hesaplarınızı yönetin</p>
-                      </div>
-                      <button onClick={() => setActiveModal(null)} className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 transition-all">✕</button>
-                    </div>
-
-                    <div className="space-y-4 mb-6">
-                      <div onClick={() => setInvestmentDetail('altin')} className="p-5 bg-slate-50 hover:bg-red-50 border border-slate-200 rounded-2xl cursor-pointer transition-all flex justify-between items-center group">
-                        <div>
-                          <h4 className="font-extrabold text-slate-800 group-hover:text-[#d32f2f] text-sm">Altın Hesabı (Gram)</h4>
-                          <p className="text-xs text-slate-400 mt-1">Alış: 2.450,00 TL | Satış: 2.470,00 TL</p>
-                        </div>
-                        <span className="text-lg font-black text-slate-700">🥇</span>
-                      </div>
-
-                      <div onClick={() => setInvestmentDetail('doviz')} className="p-5 bg-slate-50 hover:bg-red-50 border border-slate-200 rounded-2xl cursor-pointer transition-all flex justify-between items-center group">
-                        <div>
-                          <h4 className="font-extrabold text-slate-800 group-hover:text-[#d32f2f] text-sm">Döviz İşlemleri (USD / EUR)</h4>
-                          <p className="text-xs text-slate-400 mt-1">USD/TRY Alış: 32,20 TL</p>
-                        </div>
-                        <span className="text-lg font-black text-slate-700">💵</span>
-                      </div>
-                    </div>
-
-                    <button onClick={() => setActiveModal(null)} className="w-full py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-all">Kapat</button>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h3 className="text-xl font-black text-slate-800">{investmentDetail === 'altin' ? 'Altın Al / Sat' : 'Döviz Al / Sat'}</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">İşlem yapmak istediğiniz miktarı girin</p>
-                      </div>
-                      <button onClick={() => setInvestmentDetail(null)} className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 transition-all">←</button>
-                    </div>
-
-                    <div className="space-y-4 mb-6">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Miktar</label>
-                        <input type="number" placeholder="0" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-[#d32f2f] focus:outline-none" />
-                      </div>
-                    </div>
-
-                    <button onClick={() => { alert('Yatırım işlemi başarıyla gerçekleştirildi!'); setActiveModal(null); setInvestmentDetail(null); }} className="w-full py-3.5 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl transition-all shadow-lg shadow-red-500/30">İşlemi Onayla</button>
-                  </div>
-                )}
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-black text-slate-800">Yatırım İşlemleri</h3>
+                  <button onClick={() => setActiveModal(null)} className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 transition-all">✕</button>
+                </div>
+                <p className="text-sm text-slate-600 mb-6">Yatırım portföyünüz ve döviz/altın işlemleri bu alandan yönetilir.</p>
+                <button onClick={() => setActiveModal(null)} className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-all">Kapat</button>
               </div>
             )}
 
             {activeModal === 'islemler' && (
               <div>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-black text-slate-800">İşlemler ve Ayarlar</h3>
+                  <button onClick={() => setActiveModal(null)} className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 transition-all">✕</button>
+                </div>
+                
                 {islemDetail === null ? (
-                  <div>
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h3 className="text-xl font-black text-slate-800">Diğer İşlemler</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">Fatura ödeyin veya şifrenizi değiştirin</p>
-                      </div>
-                      <button onClick={() => setActiveModal(null)} className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 transition-all">✕</button>
+                  <div className="space-y-3 mb-6">
+                    <div onClick={() => setIslemDetail('fatura')} className="p-4 bg-slate-50 hover:bg-red-50 border border-slate-200 rounded-2xl cursor-pointer font-bold text-slate-700 hover:text-[#d32f2f] transition-all">
+                      💡 Fatura Öde
                     </div>
-
-                    <div className="space-y-4 mb-6">
-                      <div onClick={() => setIslemDetail('fatura')} className="p-5 bg-slate-50 hover:bg-red-50 border border-slate-200 rounded-2xl cursor-pointer transition-all flex justify-between items-center group">
-                        <div>
-                          <h4 className="font-extrabold text-slate-800 group-hover:text-[#d32f2f] text-sm">Fatura Öde</h4>
-                          <p className="text-xs text-slate-400 mt-1">Elektrik, Su, Doğalgaz vb.</p>
-                        </div>
-                        <span className="text-lg font-black text-slate-700">📄</span>
-                      </div>
-
-                      <div onClick={() => setIslemDetail('sifre')} className="p-5 bg-slate-50 hover:bg-red-50 border border-slate-200 rounded-2xl cursor-pointer transition-all flex justify-between items-center group">
-                        <div>
-                          <h4 className="font-extrabold text-slate-800 group-hover:text-[#d32f2f] text-sm">Şifre Değiştir</h4>
-                          <p className="text-xs text-slate-400 mt-1">6 haneli parolanızı güncelleyin</p>
-                        </div>
-                        <span className="text-lg font-black text-slate-700">🔑</span>
-                      </div>
+                    <div onClick={() => setIslemDetail('sifre')} className="p-4 bg-slate-50 hover:bg-red-50 border border-slate-200 rounded-2xl cursor-pointer font-bold text-slate-700 hover:text-[#d32f2f] transition-all">
+                      🔑 Parola Değiştir
                     </div>
-
-                    <button onClick={() => setActiveModal(null)} className="w-full py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-all">Kapat</button>
+                    <button onClick={() => setActiveModal(null)} className="w-full mt-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-all">Kapat</button>
                   </div>
                 ) : islemDetail === 'fatura' ? (
-                  <div>
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h3 className="text-xl font-black text-slate-800">Fatura Ödeme</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">Kurum ve abone no bilgilerini girin</p>
-                      </div>
-                      <button onClick={() => setIslemDetail(null)} className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 transition-all">←</button>
+                  <form onSubmit={handlePayBill} className="space-y-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="font-extrabold text-slate-800 text-sm">Fatura Ödeme</h4>
+                      <button type="button" onClick={() => setIslemDetail(null)} className="text-xs text-[#d32f2f] font-bold underline">Geri</button>
                     </div>
-
-                    <form onSubmit={handlePayBill} className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fatura Tipi</label>
-                        <select value={faturaTipi} onChange={(e) => setFaturaTipi(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-[#d32f2f] focus:outline-none">
-                          <option value="Elektrik">Elektrik</option>
-                          <option value="Su">Su</option>
-                          <option value="Doğalgaz">Doğalgaz</option>
-                          <option value="İnternet">İnternet</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Abone Numarası</label>
-                        <input type="text" value={aboneNo} onChange={(e) => setAboneNo(e.target.value)} required placeholder="Örn: 12345678" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-[#d32f2f] focus:outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tutar (TL)</label>
-                        <input type="number" step="0.01" value={faturaTutar} onChange={(e) => setFaturaTutar(e.target.value)} required placeholder="0.00" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-[#d32f2f] focus:outline-none" />
-                      </div>
-
-                      <button type="submit" className="w-full py-3.5 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl transition-all shadow-lg shadow-red-500/30 mt-2">Faturayı Öde</button>
-                    </form>
-                  </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Fatura Tipi</label>
+                      <select value={faturaTipi} onChange={(e) => setFaturaTipi(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none">
+                        <option value="Elektrik">Elektrik</option>
+                        <option value="Su">Su</option>
+                        <option value="Doğalgaz">Doğalgaz</option>
+                        <option value="İnternet">İnternet</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Abone Numarası</label>
+                      <input type="text" value={aboneNo} onChange={(e) => setAboneNo(e.target.value)} required placeholder="Abone No giriniz" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Tutar (TL)</label>
+                      <input type="number" step="0.01" value={faturaTutar} onChange={(e) => setFaturaTutar(e.target.value)} required placeholder="0.00" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none" />
+                    </div>
+                    <button type="submit" className="w-full py-3.5 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl shadow-lg transition-all">Faturayı Öde</button>
+                  </form>
                 ) : (
-                  <div>
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h3 className="text-xl font-black text-slate-800">Şifre Değiştir</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">Mevcut ve yeni parolanızı girin</p>
-                      </div>
-                      <button onClick={() => setIslemDetail(null)} className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 transition-all">←</button>
+                  <form onSubmit={handleChangePassword} className="space-y-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="font-extrabold text-slate-800 text-sm">Parola Değiştir</h4>
+                      <button type="button" onClick={() => setIslemDetail(null)} className="text-xs text-[#d32f2f] font-bold underline">Geri</button>
                     </div>
-
-                    <form onSubmit={handleChangePassword} className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mevcut Parola (6 Hane)</label>
-                        <input type="password" maxLength="6" value={eskiSifre} onChange={(e) => setEskiSifre(e.target.value)} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-[#d32f2f] focus:outline-none tracking-widest" placeholder="••••••" />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Yeni Parola (6 Hane)</label>
-                        <input type="password" maxLength="6" value={yeniSifre} onChange={(e) => setYeniSifre(e.target.value)} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-[#d32f2f] focus:outline-none tracking-widest" placeholder="••••••" />
-                      </div>
-
-                      <button type="submit" className="w-full py-3.5 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl transition-all shadow-lg shadow-red-500/30 mt-2">Parolayı Güncelle</button>
-                    </form>
-                  </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Mevcut Parola (6 Hane)</label>
+                      <input type="password" maxLength="6" value={eskiSifre} onChange={(e) => setEskiSifre(e.target.value)} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold tracking-widest focus:outline-none" placeholder="••••••" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Yeni Parola (6 Hane)</label>
+                      <input type="password" maxLength="6" value={yeniSifre} onChange={(e) => setYeniSifre(e.target.value)} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold tracking-widest focus:outline-none" placeholder="••••••" />
+                    </div>
+                    <button type="submit" className="w-full py-3.5 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl shadow-lg transition-all">Parolayı Güncelle</button>
+                  </form>
                 )}
               </div>
             )}
