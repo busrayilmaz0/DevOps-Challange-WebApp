@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\ZiraatWebApp\\ZiraatWebApp\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ZiraatWebApp\\ZiraatWebApp\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\ZiraatWebApp\\ZiraatWebApp\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ZiraatWebApp\\ZiraatWebApp\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -32,6 +40,32 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-26T14:49:48.559Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "dockerfile",
+              "DocumentMoniker": "C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\ZiraatWebApp\\ZiraatWebApp\\dockerfile",
+              "RelativeDocumentMoniker": "ZiraatWebApp\\ZiraatWebApp\\dockerfile",
+              "ToolTip": "C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\ZiraatWebApp\\ZiraatWebApp\\dockerfile",
+              "RelativeToolTip": "ZiraatWebApp\\ZiraatWebApp\\dockerfile",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-08-26T14:47:07.625Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\ZiraatWebApp\\ZiraatWebApp\\Program.cs",
               "RelativeDocumentMoniker": "ZiraatWebApp\\ZiraatWebApp\\Program.cs",
               "ToolTip": "C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\ZiraatWebApp\\ZiraatWebApp\\Program.cs",
@@ -43,7 +77,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "ZiraatWebApp.csproj",
               "DocumentMoniker": "C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\ZiraatWebApp\\ZiraatWebApp\\ZiraatWebApp.csproj",
               "RelativeDocumentMoniker": "ZiraatWebApp\\ZiraatWebApp\\ZiraatWebApp.csproj",
@@ -55,7 +89,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\ZiraatWebApp\\ZiraatWebApp\\appsettings.json",
               "RelativeDocumentMoniker": "ZiraatWebApp\\ZiraatWebApp\\appsettings.json",
@@ -67,7 +101,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "webapp-deployment.yaml",
               "DocumentMoniker": "C:\\Users\\busra\\Desktop\\DevOps_proje\\ZiraatWebApp\\ZiraatWebApp\\ZiraatWebApp\\webapp-deployment.yaml",
               "RelativeDocumentMoniker": "ZiraatWebApp\\ZiraatWebApp\\webapp-deployment.yaml",

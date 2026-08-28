@@ -8,6 +8,6 @@
     "\\ZiraatApi\\ZiraatAPI\\ZiraatAPI\\Controllers",
     "\\ZiraatApi\\ZiraatAPI\\ZiraatAPI\\Models"
   ],
-  "SelectedNode": "\\concourse\\webapp-pipeline.yml",
+  "SelectedNode": "\\ZiraatApi\\ZiraatAPI\\ZiraatAPI\\ZiraatAPI.csproj",
   "PreviewInSolutionExplorer": false
 }
