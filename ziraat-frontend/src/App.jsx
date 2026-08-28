@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 export default function App() {
   // Backend API Adresi
-  const API_BASE = 'https://ziraat-devops-webapp.onrender.com';
+  const API_BASE = 'https://devops-challange-webapi.onrender.com';
 
   const [view, setView] = useState('login');
   
@@ -74,17 +74,17 @@ export default function App() {
       return;
     }
 
-    const newUser = {
-      fullName: regName,
-      tc: regTc,
-      password: regPassword
+    const apiUser = {
+      regName,
+      regTc,
+      regPassword
     };
 
     try {
       const response = await fetch(`${API_BASE}/api/Home/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUser)
+        body: JSON.stringify(apiUser)
       });
 
       const data = await response.json();
@@ -107,7 +107,9 @@ export default function App() {
       }
 
       const backupUser = {
-        ...newUser,
+        fullName: regName,
+        tc: regTc,
+        password: regPassword,
         iban: `TR54 0001 0000 ${Math.floor(10000000 + Math.random() * 90000000)}`,
         balance: Math.floor(Math.random() * (50000 - 1000 + 1)) + 1000
       };
@@ -123,16 +125,31 @@ export default function App() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    if (!/^\d{11}$/.test(loginTc)) {
+      alert('T.C. Kimlik Numarası 11 haneli olmalıdır!');
+      return;
+    }
+
+    if (!/^\d{6}$/.test(loginPassword)) {
+      alert('Parola 6 haneli olmalıdır!');
+      return;
+    }
+
     try {
       const response = await fetch(`${API_BASE}/api/Home/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tc: loginTc, password: loginPassword })
+        body: JSON.stringify({ regTc: loginTc, regPassword: loginPassword })
       });
 
       if (response.ok) {
         const data = await response.json();
-        setCurrentUser(data);
+        setCurrentUser({
+          ...data,
+          fullName: data.regName ?? data.fullName,
+          tc: data.regTc ?? data.tc,
+          password: data.regPassword ?? data.password
+        });
         
         // Backend'den gelen gerçek bakiyeyi state'e aktarıyoruz:
         setBalance(data.balance !== undefined ? data.balance : 0);
@@ -140,6 +157,9 @@ export default function App() {
         successLogin();
         return;
       }
+
+      alert('T.C. Kimlik Numarası veya Parola hatalı!');
+      return;
     } catch (err) {
       console.warn('Backend bağlantısı kurulamadı, yerel hafıza kontrol ediliyor.', err);
     }
@@ -367,11 +387,11 @@ export default function App() {
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">T.C. Kimlik Numarası</label>
-              <input type="text" maxLength="11" value={loginTc} onChange={(e) => setLoginTc(e.target.value)} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="11 haneli T.C." />
+              <input type="text" inputMode="numeric" maxLength="11" value={loginTc} onChange={(e) => setLoginTc(e.target.value.replace(/\D/g, ''))} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="11 haneli T.C." />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">6 Haneli Parola</label>
-              <input type="password" maxLength="6" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm tracking-widest" placeholder="••••••" />
+              <input type="password" inputMode="numeric" maxLength="6" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value.replace(/\D/g, ''))} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm tracking-widest" placeholder="••••••" />
             </div>
             <button type="submit" className="w-full py-4 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl shadow-lg transition-all text-base">Giriş Yap</button>
           </form>
