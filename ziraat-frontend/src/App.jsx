@@ -68,7 +68,6 @@ export default function App() {
       e.preventDefault();
     }
 
-    // Parola 6 haneden azsa hata ver (maxLength zaten 6'dan fazla girmeyi engelliyor)
     if (regPassword.length < 6) {
       alert('Parola 6 haneli olmalıdır!');
       return;
@@ -121,6 +120,7 @@ export default function App() {
       setRegName(''); setRegTc(''); setRegPassword('');
     }
   };
+
   // 2. GİRİŞ YAPMA (Backend + LocalStorage Yedekli)
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -135,16 +135,14 @@ export default function App() {
       return;
     }
 
-    // --- KULLANICIYA ÖZEL RASTGELE/KAYITLI BAKİYE BELİRLEME ---
+    // --- BAKİYE ATAMA MANTIĞI ---
     const assignBalance = (tc) => {
       const userKey = `ziraat_balance_${tc}`;
       const savedBalance = localStorage.getItem(userKey);
 
-      if (savedBalance !== null) {
-        // Önceden kalan bakiyesi varsa onu getir
+      if (savedBalance !== null && parseFloat(savedBalance) > 0) {
         setBalance(parseFloat(savedBalance));
       } else {
-        // İlk defa giriyorsa rastgele bir bakiye ata (Örn: 15.000 TL - 65.000 TL arası)
         const randomStart = Math.floor(Math.random() * (65000 - 15000 + 1)) + 15000;
         setBalance(randomStart);
         localStorage.setItem(userKey, randomStart.toString());
@@ -167,9 +165,7 @@ export default function App() {
           password: data.regPassword ?? data.password
         });
         
-        // Bakiyeyi ata
         assignBalance(loginTc);
-
         successLogin();
         return;
       }
@@ -223,9 +219,12 @@ export default function App() {
       return;
     }
 
+    const activeTc = currentUser?.tc || loginTc;
     const newBalance = balance - numericAmount;
     setBalance(newBalance);
-    localStorage.setItem(`ziraat_balance_${loginTc}`, newBalance.toString());
+    if (activeTc) {
+      localStorage.setItem(`ziraat_balance_${activeTc}`, newBalance.toString());
+    }
 
     const newTx = {
       title: recipientName || 'EFT / Para Gönderimi',
@@ -270,7 +269,13 @@ export default function App() {
       return;
     }
 
-    setBalance(prev => prev - t);
+    const activeTc = currentUser?.tc || loginTc;
+    const newBalance = balance - t;
+    setBalance(newBalance);
+    if (activeTc) {
+      localStorage.setItem(`ziraat_balance_${activeTc}`, newBalance.toString());
+    }
+
     const newTx = {
       title: `${faturaTipi} Faturası`,
       desc: `Abone No: ${aboneNo}`,
@@ -332,7 +337,7 @@ export default function App() {
     return true;
   });
 
- // --- KAYIT EKRANI ---
+  // --- KAYIT EKRANI ---
   if (view === 'register') {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans px-4">
@@ -371,7 +376,6 @@ export default function App() {
             <button 
               type="button" 
               onClick={() => {
-                // 6 haneden az yazıldıysa butona basıldığında uyar ve devam ettirme
                 if (regPassword.length < 6) {
                   alert('Parola mutlaka 6 haneli olmalıdır!');
                   return;
@@ -436,7 +440,7 @@ export default function App() {
               <p className="text-sm text-red-100">Son Güvenli Giriş</p>
               <p className="text-sm font-semibold">{loginTime || 'Bugün'}</p>
             </div>
-            <button onClick={handleLogout} className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-white/20 transition-all">Güvenli Çıkış</button>
+            <button onClick={handleLogout} className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-white/20 transition-all cursor-pointer">Güvenli Çıkış</button>
           </div>
         </div>
       </header>
