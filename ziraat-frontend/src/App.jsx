@@ -135,6 +135,22 @@ export default function App() {
       return;
     }
 
+    // --- KULLANICIYA ÖZEL RASTGELE/KAYITLI BAKİYE BELİRLEME ---
+    const assignBalance = (tc) => {
+      const userKey = `ziraat_balance_${tc}`;
+      const savedBalance = localStorage.getItem(userKey);
+
+      if (savedBalance !== null) {
+        // Önceden kalan bakiyesi varsa onu getir
+        setBalance(parseFloat(savedBalance));
+      } else {
+        // İlk defa giriyorsa rastgele bir bakiye ata (Örn: 15.000 TL - 65.000 TL arası)
+        const randomStart = Math.floor(Math.random() * (65000 - 15000 + 1)) + 15000;
+        setBalance(randomStart);
+        localStorage.setItem(userKey, randomStart.toString());
+      }
+    };
+
     try {
       const response = await fetch(`${API_BASE}/api/Home/login`, {
         method: 'POST',
@@ -151,8 +167,8 @@ export default function App() {
           password: data.regPassword ?? data.password
         });
         
-        // Backend'den gelen gerçek bakiyeyi state'e aktarıyoruz:
-        setBalance(data.balance !== undefined ? data.balance : 0);
+        // Bakiyeyi ata
+        assignBalance(loginTc);
 
         successLogin();
         return;
@@ -170,7 +186,7 @@ export default function App() {
 
     if (foundUser) {
       setCurrentUser(foundUser);
-      setBalance(foundUser.balance || 0);
+      assignBalance(loginTc);
       successLogin();
     } else {
       alert('T.C. Kimlik Numarası veya Parola hatalı!');
@@ -207,7 +223,9 @@ export default function App() {
       return;
     }
 
-    setBalance(prev => prev - numericAmount);
+    const newBalance = balance - numericAmount;
+    setBalance(newBalance);
+    localStorage.setItem(`ziraat_balance_${loginTc}`, newBalance.toString());
 
     const newTx = {
       title: recipientName || 'EFT / Para Gönderimi',
