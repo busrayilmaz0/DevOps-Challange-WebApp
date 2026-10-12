@@ -2,12 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\concourse",
+    "\\ziraat-webapp-chart",
     "\\ZiraatApi",
     "\\ZiraatApi\\ZiraatAPI",
     "\\ZiraatApi\\ZiraatAPI\\ZiraatAPI",
     "\\ZiraatApi\\ZiraatAPI\\ZiraatAPI\\Controllers",
-    "\\ZiraatApi\\ZiraatAPI\\ZiraatAPI\\Models"
+    "\\ZiraatApi\\ZiraatAPI\\ZiraatAPI\\Models",
+    "\\ZiraatWebApp"
   ],
-  "SelectedNode": "\\ZiraatApi\\ZiraatAPI\\ZiraatAPI\\ZiraatAPI.csproj",
   "PreviewInSolutionExplorer": false
 }

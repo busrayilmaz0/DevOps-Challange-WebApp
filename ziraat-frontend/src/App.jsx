@@ -340,57 +340,66 @@ export default function App() {
   // --- KAYIT EKRANI ---
   if (view === 'register') {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans px-4">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 sm:p-10 border border-slate-200/80">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-black text-slate-800 tracking-tight">Ziraat Dijital</h1>
-            <p className="text-sm text-slate-500 mt-1">Yeni Hesap Oluşturma</p>
-          </div>
-          
-          <div className="space-y-5">
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">İsim Soyisim</label>
-              <input type="text" value={regName} onChange={(e) => setRegName(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="Büşra Yılmaz" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">T.C. Kimlik No</label>
-              <input type="text" value={regTc} onChange={(e) => setRegTc(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="T.C. Kimlik No" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">6 Haneli Parola</label>
-              <input 
-                type="password" 
-                maxLength="6" 
-                value={regPassword} 
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, '');
-                  if (val.length <= 6) {
-                    setRegPassword(val);
-                  }
-                }} 
-                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm tracking-widest" 
-                placeholder="••••••" 
-              />
+      <div className="min-h-screen bg-slate-100 flex flex-col items-center font-sans">
+        
+        {/* --- UYARI ŞERİDİ BURAYA EKLENDİ --- */}
+        <div style={{ width: '100%', backgroundColor: '#dc3545', color: 'white', padding: '10px', textAlign: 'center', fontWeight: 'bold', fontSize: '14px', zIndex: 50 }}>
+          ⚠️ DİKKAT: Bu sistem sadece DevOps mimarisi testleri için kurulmuş bir simülasyondur. Lütfen gerçek kişisel veya finansal bilgilerinizi GİRMEYİNİZ.
+        </div>
+        
+        {/* İçeriği merkeze almak için mevcut div'e flex-1 eklendi */}
+        <div className="flex-1 flex items-center justify-center w-full px-4">
+          <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 sm:p-10 border border-slate-200/80">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-black text-slate-800 tracking-tight">Ziraat Dijital</h1>
+              <p className="text-sm text-slate-500 mt-1">Yeni Hesap Oluşturma</p>
             </div>
             
-            <button 
-              type="button" 
-              onClick={() => {
-                if (regPassword.length < 6) {
-                  alert('Parola mutlaka 6 haneli olmalıdır!');
-                  return;
-                }
-                console.log("Hesap oluştur butonuna basıldı!", { regName, regTc, regPassword });
-                handleRegister();
-              }} 
-              className="w-full py-4 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl shadow-lg transition-all text-base mt-2 cursor-pointer"
-            >
-              Hesap Oluştur
-            </button>
-          </div>
+            <div className="space-y-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">İsim Soyisim</label>
+                <input type="text" value={regName} onChange={(e) => setRegName(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="Büşra Yılmaz" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">T.C. Kimlik No</label>
+                <input type="text" value={regTc} onChange={(e) => setRegTc(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="T.C. Kimlik No" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">6 Haneli Parola</label>
+                <input 
+                  type="password" 
+                  maxLength="6" 
+                  value={regPassword} 
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    if (val.length <= 6) {
+                      setRegPassword(val);
+                    }
+                  }} 
+                  className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm tracking-widest" 
+                  placeholder="••••••" 
+                />
+              </div>
+              
+              <button 
+                type="button" 
+                onClick={() => {
+                  if (regPassword.length < 6) {
+                    alert('Parola mutlaka 6 haneli olmalıdır!');
+                    return;
+                  }
+                  console.log("Hesap oluştur butonuna basıldı!", { regName, regTc, regPassword });
+                  handleRegister();
+                }} 
+                className="w-full py-4 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl shadow-lg transition-all text-base mt-2 cursor-pointer"
+              >
+                Hesap Oluştur
+              </button>
+            </div>
 
-          <div className="mt-6 text-center">
-            <button onClick={() => setView('login')} className="text-xs text-slate-500 hover:text-[#d32f2f] font-bold cursor-pointer">Zaten hesabın var mı? <span className="underline">Giriş Yap</span></button>
+            <div className="mt-6 text-center">
+              <button onClick={() => setView('login')} className="text-xs text-slate-500 hover:text-[#d32f2f] font-bold cursor-pointer">Zaten hesabın var mı? <span className="underline">Giriş Yap</span></button>
+            </div>
           </div>
         </div>
       </div>
@@ -400,31 +409,39 @@ export default function App() {
   // --- GİRİŞ EKRANI ---
   if (view === 'login') {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans px-4">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 sm:p-10 border border-slate-200/80">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-black text-slate-800 tracking-tight">Ziraat Dijital</h1>
-            <p className="text-sm text-slate-500 mt-1">Giriş Paneli</p>
-          </div>
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">T.C. Kimlik Numarası</label>
-              <input type="text" inputMode="numeric" maxLength="11" value={loginTc} onChange={(e) => setLoginTc(e.target.value.replace(/\D/g, ''))} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="11 haneli T.C." />
+      <div className="min-h-screen bg-slate-100 flex flex-col items-center font-sans">
+        
+        {/* --- UYARI ŞERİDİ BURAYA EKLENDİ --- */}
+        <div style={{ width: '100%', backgroundColor: '#dc3545', color: 'white', padding: '10px', textAlign: 'center', fontWeight: 'bold', fontSize: '14px', zIndex: 50 }}>
+          ⚠️ DİKKAT: Bu sistem sadece DevOps mimarisi testleri için kurulmuş bir simülasyondur. Lütfen gerçek kişisel veya finansal bilgilerinizi GİRMEYİNİZ.
+        </div>
+
+        {/* İçeriği merkeze almak için flex-1 eklendi */}
+        <div className="flex-1 flex items-center justify-center w-full px-4">
+          <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 sm:p-10 border border-slate-200/80">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-black text-slate-800 tracking-tight">Ziraat Dijital</h1>
+              <p className="text-sm text-slate-500 mt-1">Giriş Paneli</p>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">6 Haneli Parola</label>
-              <input type="password" inputMode="numeric" maxLength="6" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value.replace(/\D/g, ''))} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm tracking-widest" placeholder="••••••" />
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">T.C. Kimlik Numarası</label>
+                <input type="text" inputMode="numeric" maxLength="11" value={loginTc} onChange={(e) => setLoginTc(e.target.value.replace(/\D/g, ''))} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm" placeholder="11 haneli T.C." />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">6 Haneli Parola</label>
+                <input type="password" inputMode="numeric" maxLength="6" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value.replace(/\D/g, ''))} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#d32f2f] text-sm tracking-widest" placeholder="••••••" />
+              </div>
+              <button type="submit" className="w-full py-4 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl shadow-lg transition-all text-base">Giriş Yap</button>
+            </form>
+            <div className="mt-6 text-center">
+              <button onClick={() => setView('register')} className="text-xs text-slate-500 hover:text-[#d32f2f] font-bold">Hesabın yok mu? <span className="underline">Hemen Hesap Aç</span></button>
             </div>
-            <button type="submit" className="w-full py-4 bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold rounded-2xl shadow-lg transition-all text-base">Giriş Yap</button>
-          </form>
-          <div className="mt-6 text-center">
-            <button onClick={() => setView('register')} className="text-xs text-slate-500 hover:text-[#d32f2f] font-bold">Hesabın yok mu? <span className="underline">Hemen Hesap Aç</span></button>
           </div>
         </div>
       </div>
     );
   }
-
   // --- ANA PANEL (DASHBOARD) ---
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans relative">
