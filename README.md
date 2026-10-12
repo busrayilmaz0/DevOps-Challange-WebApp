@@ -1,4 +1,5 @@
  Uçtan Uca DevOps ve CI/CD Mimari Demosu
+ 
 ⚠️ YASAL UYARI (DISCLAIMER): Bu proje; yazılım mimarisi, CI/CD süreçleri ve bulut dağıtım teknolojilerini (Docker, Concourse, Render) test etmek amacıyla geliştirilmiş bir Kavram Kanıtlama (Proof of Concept) çalışmasıdır. Gerçek Ziraat Bankası veya Ziraat Teknoloji sistemleri ile hiçbir resmi, ticari veya veri tabanlı bağlantısı yoktur. Yalnızca eğitim ve portfolyo gösterimi içindir; test aşamasında kesinlikle gerçek kişisel veriler kullanılmamalıdır.
 
 📌 Proje Hakkında
